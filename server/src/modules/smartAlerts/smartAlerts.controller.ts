@@ -79,6 +79,10 @@ export class SmartAlertsController {
       const { id } = req.params;
       const userId = req.user!.userId;
 
+      if (!id) {
+        return res.status(400).json({ error: 'ID de l\'alerte requis' });
+      }
+
       await smartAlertsService.deleteAlert(id, userId);
 
       res.json({ message: 'Alerte supprimée' });
