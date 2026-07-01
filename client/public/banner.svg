@@ -1,0 +1,114 @@
+<svg width="1200" height="300" viewBox="0 0 1200 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Dégradé fond -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#0a0e27;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#1a1f3a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0a0e27;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="blueGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#00d9ff;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#0088ff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0055ff;stop-opacity:1" />
+    </linearGradient>
+    
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Fond -->
+  <rect width="1200" height="300" fill="url(#bgGrad)"/>
+  
+  <!-- Grille de circuits en arrière-plan -->
+  <g opacity="0.08" stroke="#00d9ff" stroke-width="1">
+    <line x1="0" y1="50" x2="1200" y2="50"/>
+    <line x1="0" y1="100" x2="1200" y2="100"/>
+    <line x1="0" y1="150" x2="1200" y2="150"/>
+    <line x1="0" y1="200" x2="1200" y2="200"/>
+    <line x1="0" y1="250" x2="1200" y2="250"/>
+    
+    <line x1="100" y1="0" x2="100" y2="300"/>
+    <line x1="200" y1="0" x2="200" y2="300"/>
+    <line x1="400" y1="0" x2="400" y2="300"/>
+    <line x1="600" y1="0" x2="600" y2="300"/>
+    <line x1="800" y1="0" x2="800" y2="300"/>
+    <line x1="1000" y1="0" x2="1000" y2="300"/>
+  </g>
+  
+  <!-- Logo "B" stylisé -->
+  <g transform="translate(80, 70)">
+    <!-- Lettre B -->
+    <path d="M 20 0 L 20 140 L 85 140 Q 120 140 120 105 Q 120 80 95 72 Q 115 65 115 38 Q 115 0 80 0 Z M 45 25 L 80 25 Q 90 25 90 38 Q 90 50 80 50 L 45 50 Z M 45 75 L 85 75 Q 95 75 95 95 Q 95 115 85 115 L 45 115 Z" 
+          fill="url(#blueGrad)" 
+          filter="url(#glow)"/>
+    
+    <!-- Pixels dispersés -->
+    <g opacity="0.8">
+      <rect x="-5" y="30" width="8" height="8" fill="#00d9ff"/>
+      <rect x="3" y="27" width="6" height="6" fill="#00d9ff" opacity="0.8"/>
+      <rect x="-2" y="42" width="7" height="7" fill="#0088ff" opacity="0.7"/>
+      <rect x="6" y="47" width="5" height="5" fill="#0088ff" opacity="0.6"/>
+      <rect x="-7" y="55" width="6" height="6" fill="#00d9ff" opacity="0.5"/>
+      <rect x="1" y="62" width="5" height="5" fill="#0088ff" opacity="0.4"/>
+      
+      <rect x="-4" y="80" width="7" height="7" fill="#00d9ff" opacity="0.7"/>
+      <rect x="4" y="88" width="5" height="5" fill="#0088ff" opacity="0.5"/>
+    </g>
+    
+    <!-- Dollar -->
+    <text x="70" y="95" font-family="Arial, sans-serif" font-size="50" font-weight="bold" fill="#ffffff" opacity="0.95">$</text>
+  </g>
+  
+  <!-- Texte "BUDGETWISE" -->
+  <text x="240" y="180" font-family="Arial, sans-serif" font-size="72" font-weight="bold" fill="url(#blueGrad)" filter="url(#glow)">BUDGETWISE</text>
+  
+  <!-- Sous-titre -->
+  <text x="245" y="210" font-family="Arial, sans-serif" font-size="20" fill="#00d9ff" opacity="0.8">Gestion Financière Intelligente</text>
+  
+  <!-- Circuits électroniques décoratifs -->
+  <g stroke="#00d9ff" stroke-width="2" fill="none" opacity="0.4" filter="url(#glow)">
+    <!-- Droite -->
+    <line x1="750" y1="130" x2="850" y2="130"/>
+    <circle cx="850" cy="130" r="4" fill="#00d9ff"/>
+    <line x1="850" y1="130" x2="900" y2="150"/>
+    <circle cx="900" cy="150" r="3" fill="#00d9ff"/>
+    
+    <line x1="750" y1="160" x2="820" y2="160"/>
+    <circle cx="820" cy="160" r="4" fill="#00d9ff"/>
+    <line x1="820" y1="160" x2="880" y2="180"/>
+    <circle cx="880" cy="180" r="3" fill="#00d9ff"/>
+    
+    <!-- Plus loin à droite -->
+    <line x1="950" y1="100" x2="1050" y2="100"/>
+    <circle cx="950" cy="100" r="3" fill="#00d9ff"/>
+    <circle cx="1050" cy="100" r="4" fill="#00d9ff"/>
+    <line x1="1050" y1="100" x2="1100" y2="130"/>
+    <circle cx="1100" cy="130" r="3" fill="#00d9ff"/>
+    
+    <line x1="950" y1="200" x2="1050" y2="200"/>
+    <circle cx="950" cy="200" r="3" fill="#00d9ff"/>
+    <circle cx="1050" cy="200" r="4" fill="#00d9ff"/>
+    <line x1="1050" y1="200" x2="1100" y2="170"/>
+    <circle cx="1100" cy="170" r="3" fill="#00d9ff"/>
+  </g>
+  
+  <!-- Particules lumineuses -->
+  <g fill="#00d9ff" opacity="0.6">
+    <circle cx="720" cy="90" r="2"/>
+    <circle cx="740" cy="110" r="2.5"/>
+    <circle cx="920" cy="120" r="2"/>
+    <circle cx="1120" cy="150" r="2.5"/>
+    <circle cx="1140" cy="110" r="2"/>
+    <circle cx="230" cy="100" r="2"/>
+    <circle cx="250" cy="230" r="2.5"/>
+  </g>
+  
+  <!-- Signature Nefertiti Digital Solutions (petit) -->
+  <text x="1000" y="280" font-family="Arial, sans-serif" font-size="12" fill="#00d9ff" opacity="0.5">NEFERTITI DIGITAL SOLUTIONS</text>
+</svg>

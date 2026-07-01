@@ -1,0 +1,32 @@
+# Server logs
+logs/
+*.log
+
+# Environment
+.env
+.env.local
+
+# Build
+dist/
+build/
+
+# Dependencies
+node_modules/
+
+# Uploads
+uploads/
+
+# Database
+*.db
+*.sqlite
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Prisma
+prisma/migrations/*_migration_lock.toml

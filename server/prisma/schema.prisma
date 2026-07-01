@@ -1,0 +1,618 @@
+// This is your Prisma schema file
+// Learn more: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==================== USER MODULE ====================
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  password      String
+  firstName     String    @map("first_name")
+  lastName      String    @map("last_name")
+  avatar        String?
+  currency      String    @default("EUR")
+  language      String    @default("fr")
+  theme         String    @default("light")
+  emailVerified Boolean   @default(false) @map("email_verified")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  profile              UserProfile?
+  settings             UserSettings?
+  accounts             Account[]
+  transactions         Transaction[]
+  categories           Category[]
+  budgets              Budget[]
+  savingGoals          SavingGoal[]
+  recurringTransactions RecurringTransaction[]
+  notifications        Notification[]
+  refreshTokens        RefreshToken[]
+  verificationTokens   VerificationToken[]
+  passwordResetTokens  PasswordResetToken[]
+  auditLogs            AuditLog[]
+  userAchievements     UserAchievement[]
+  userStats            UserStats?
+  tontines             Tontine[]
+  conversations        Conversation[]
+  smartAlerts          SmartAlert[]
+  billSplits           BillSplit[]
+
+  @@map("users")
+}
+
+model UserProfile {
+  id        String   @id @default(uuid())
+  userId    String   @unique @map("user_id")
+  phone     String?
+  address   String?
+  city      String?
+  country   String?
+  timezone  String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_profiles")
+}
+
+model UserSettings {
+  id                  String   @id @default(uuid())
+  userId              String   @unique @map("user_id")
+  emailNotifications  Boolean  @default(true) @map("email_notifications")
+  budgetAlerts        Boolean  @default(true) @map("budget_alerts")
+  transactionAlerts   Boolean  @default(true) @map("transaction_alerts")
+  goalAlerts          Boolean  @default(true) @map("goal_alerts")
+  weeklyReport        Boolean  @default(false) @map("weekly_report")
+  monthlyReport       Boolean  @default(true) @map("monthly_report")
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_settings")
+}
+
+// ==================== AUTHENTICATION ====================
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  token     String   @unique
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+model VerificationToken {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  token     String   @unique
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("verification_tokens")
+}
+
+model PasswordResetToken {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  token     String   @unique
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("password_reset_tokens")
+}
+
+// ==================== ACCOUNT MODULE ====================
+
+model Account {
+  id            String   @id @default(uuid())
+  userId        String   @map("user_id")
+  name          String
+  type          String   // BANK, CASH, MOBILE_MONEY, CARD, SAVINGS, INVESTMENT
+  balance       Decimal  @default(0) @db.Decimal(15, 2)
+  currency      String
+  icon          String?
+  color         String?
+  provider      String?  // For mobile money: ORANGE_MONEY, MOOV_MONEY, WAVE, MTN_MONEY
+  accountNumber String?  @map("account_number")
+  isDefault     Boolean  @default(false) @map("is_default")
+  isActive      Boolean  @default(true) @map("is_active")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  user                User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions        Transaction[] @relation("AccountTransactions")
+  transferTransactions Transaction[] @relation("TransferToAccount")
+  savingGoals         SavingGoal[]
+  recurringTransactions RecurringTransaction[]
+
+  @@index([userId])
+  @@index([userId, isDefault])
+  @@map("accounts")
+}
+
+// ==================== CATEGORY MODULE ====================
+
+model Category {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  name      String
+  icon      String
+  color     String
+  type      String   // INCOME, EXPENSE, BOTH
+  isDefault Boolean  @default(false) @map("is_default")
+  parentId  String?  @map("parent_id")
+  order     Int      @default(0)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parent       Category?     @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children     Category[]    @relation("CategoryHierarchy")
+  transactions Transaction[]
+  budgets      Budget[]
+  recurringTransactions RecurringTransaction[]
+
+  @@unique([userId, name])
+  @@index([userId])
+  @@index([userId, type])
+  @@map("categories")
+}
+
+// ==================== TRANSACTION MODULE ====================
+
+model Transaction {
+  id                     String   @id @default(uuid())
+  userId                 String   @map("user_id")
+  accountId              String   @map("account_id")
+  categoryId             String?  @map("category_id")
+  type                   String   // INCOME, EXPENSE, TRANSFER
+  amount                 Decimal  @db.Decimal(15, 2)
+  currency               String
+  description            String
+  paymentMethod          String?  @map("payment_method") // CASH, CARD, BANK_TRANSFER, MOBILE_MONEY, CHECK, OTHER
+  receiptUrl             String?  @map("receipt_url")
+  tags                   String[]
+  date                   DateTime
+  isRecurring            Boolean  @default(false) @map("is_recurring")
+  recurringTransactionId String?  @map("recurring_transaction_id")
+  transferToAccountId    String?  @map("transfer_to_account_id")
+  notes                  String?  @db.Text
+  createdAt              DateTime @default(now()) @map("created_at")
+  updatedAt              DateTime @updatedAt @map("updated_at")
+
+  user                User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  account             Account               @relation("AccountTransactions", fields: [accountId], references: [id], onDelete: Cascade)
+  category            Category?             @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  transferToAccount   Account?              @relation("TransferToAccount", fields: [transferToAccountId], references: [id], onDelete: SetNull)
+  recurringTransaction RecurringTransaction? @relation(fields: [recurringTransactionId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([userId, date])
+  @@index([userId, type])
+  @@index([userId, categoryId])
+  @@index([userId, accountId])
+  @@map("transactions")
+}
+
+model RecurringTransaction {
+  id              String   @id @default(uuid())
+  userId          String   @map("user_id")
+  accountId       String   @map("account_id")
+  categoryId      String?  @map("category_id")
+  type            String   // INCOME, EXPENSE, TRANSFER
+  amount          Decimal  @db.Decimal(15, 2)
+  currency        String
+  description     String
+  paymentMethod   String?  @map("payment_method")
+  frequency       String   // DAILY, WEEKLY, BIWEEKLY, MONTHLY, QUARTERLY, YEARLY
+  startDate       DateTime @map("start_date")
+  endDate         DateTime? @map("end_date")
+  nextExecutionDate DateTime @map("next_execution_date")
+  isActive        Boolean  @default(true) @map("is_active")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  account      Account       @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  category     Category?     @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  transactions Transaction[]
+
+  @@index([userId])
+  @@index([userId, isActive])
+  @@index([nextExecutionDate])
+  @@map("recurring_transactions")
+}
+
+// ==================== BUDGET MODULE ====================
+
+model Budget {
+  id             String   @id @default(uuid())
+  userId         String   @map("user_id")
+  name           String
+  amount         Decimal  @db.Decimal(15, 2)
+  currency       String
+  period         String   // DAILY, WEEKLY, MONTHLY, QUARTERLY, YEARLY
+  startDate      DateTime @map("start_date")
+  endDate        DateTime? @map("end_date")
+  categoryId     String?  @map("category_id")
+  isActive       Boolean  @default(true) @map("is_active")
+  alertThreshold Int      @default(80) @map("alert_threshold") // Percentage
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([userId, isActive])
+  @@index([userId, categoryId])
+  @@map("budgets")
+}
+
+// ==================== SAVING GOAL MODULE ====================
+
+model SavingGoal {
+  id                  String   @id @default(uuid())
+  userId              String   @map("user_id")
+  name                String
+  description         String?  @db.Text
+  targetAmount        Decimal  @map("target_amount") @db.Decimal(15, 2)
+  currentAmount       Decimal  @default(0) @map("current_amount") @db.Decimal(15, 2)
+  currency            String
+  icon                String?
+  color               String?
+  targetDate          DateTime? @map("target_date")
+  status              String   @default("ACTIVE") // ACTIVE, COMPLETED, PAUSED, CANCELLED
+  priority            Int      @default(3) // 1-5
+  accountId           String?  @map("account_id")
+  monthlyContribution Decimal? @map("monthly_contribution") @db.Decimal(15, 2)
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+
+  user               User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  account            Account?            @relation(fields: [accountId], references: [id], onDelete: SetNull)
+  goalContributions  GoalContribution[]
+
+  @@index([userId])
+  @@index([userId, status])
+  @@map("saving_goals")
+}
+
+model GoalContribution {
+  id        String   @id @default(uuid())
+  goalId    String   @map("goal_id")
+  amount    Decimal  @db.Decimal(15, 2)
+  date      DateTime
+  notes     String?  @db.Text
+  createdAt DateTime @default(now()) @map("created_at")
+
+  goal SavingGoal @relation(fields: [goalId], references: [id], onDelete: Cascade)
+
+  @@index([goalId])
+  @@map("goal_contributions")
+}
+
+// ==================== NOTIFICATION MODULE ====================
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  type      String   // BUDGET_ALERT, GOAL_ACHIEVED, TRANSACTION_ALERT, WEEKLY_REPORT, MONTHLY_REPORT, TONTINE_PAYMENT_DUE, TONTINE_TURN_TO_RECEIVE
+  title     String
+  message   String   @db.Text
+  isRead    Boolean  @default(false) @map("is_read")
+  metadata  Json?    @db.JsonB
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([userId, isRead])
+  @@map("notifications")
+}
+
+// ==================== AUDIT LOG ====================
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String?  @map("user_id")
+  action    String   // CREATE, UPDATE, DELETE, LOGIN, LOGOUT
+  entity    String   // User, Transaction, Budget, etc.
+  entityId  String?  @map("entity_id")
+  changes   Json?    @db.JsonB
+  ipAddress String?  @map("ip_address")
+  userAgent String?  @map("user_agent")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([entity, entityId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+// ==================== GAMIFICATION MODULE ====================
+
+model Achievement {
+  id          String   @id @default(uuid())
+  key         String   @unique // FIRST_TRANSACTION, STREAK_7, BUDGET_MASTER, etc.
+  name        String
+  description String   @db.Text
+  icon        String   // Emoji or icon name
+  category    String   // BEGINNER, SAVER, BUDGETER, STREAK, GOAL_ACHIEVER
+  tier        String   // BRONZE, SILVER, GOLD, PLATINUM
+  points      Int      @default(0)
+  requirement Json     @db.JsonB // { type: "transaction_count", value: 10 }
+  isSecret    Boolean  @default(false) @map("is_secret")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  userAchievements UserAchievement[]
+
+  @@map("achievements")
+}
+
+model UserAchievement {
+  id            String   @id @default(uuid())
+  userId        String   @map("user_id")
+  achievementId String   @map("achievement_id")
+  unlockedAt    DateTime @default(now()) @map("unlocked_at")
+  progress      Int      @default(100) // Percentage (100 = unlocked)
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, achievementId])
+  @@index([userId])
+  @@index([userId, unlockedAt])
+  @@map("user_achievements")
+}
+
+model UserStats {
+  id                    String   @id @default(uuid())
+  userId                String   @unique @map("user_id")
+  level                 Int      @default(1)
+  totalPoints           Int      @default(0) @map("total_points")
+  currentStreak         Int      @default(0) @map("current_streak")
+  longestStreak         Int      @default(0) @map("longest_streak")
+  lastActivityDate      DateTime? @map("last_activity_date")
+  totalTransactions     Int      @default(0) @map("total_transactions")
+  totalBudgetsCreated   Int      @default(0) @map("total_budgets_created")
+  totalGoalsCompleted   Int      @default(0) @map("total_goals_completed")
+  totalSaved            Decimal  @default(0) @map("total_saved") @db.Decimal(15, 2)
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_stats")
+}
+
+// ==================== TONTINE MODULE ====================
+
+model Tontine {
+  id                String   @id @default(uuid())
+  name              String
+  description       String?  @db.Text
+  userId            String   @map("user_id") // Créateur/admin
+  totalMembers      Int      @map("total_members")
+  contributionAmount Decimal @map("contribution_amount") @db.Decimal(15, 2)
+  currency          String   @default("XOF")
+  frequency         String   // WEEKLY, BIWEEKLY, MONTHLY
+  startDate         DateTime @map("start_date")
+  endDate           DateTime? @map("end_date")
+  currentRound      Int      @default(1) @map("current_round")
+  status            String   @default("ACTIVE") // ACTIVE, COMPLETED, PAUSED, CANCELLED
+  rules             String?  @db.Text // Règles spécifiques de la tontine
+  nextPaymentDate   DateTime @map("next_payment_date")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  user         User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  members      TontineMember[]
+  contributions TontineContribution[]
+  rotations    TontineRotation[]
+
+  @@index([userId])
+  @@index([status])
+  @@map("tontines")
+}
+
+model TontineMember {
+  id            String   @id @default(uuid())
+  tontineId     String   @map("tontine_id")
+  name          String
+  phone         String?
+  email         String?
+  position      Int      // Ordre dans la rotation (1, 2, 3...)
+  hasReceived   Boolean  @default(false) @map("has_received")
+  receivedAt    DateTime? @map("received_at")
+  totalPaid     Decimal  @default(0) @map("total_paid") @db.Decimal(15, 2)
+  isActive      Boolean  @default(true) @map("is_active")
+  joinedAt      DateTime @default(now()) @map("joined_at")
+  notes         String?  @db.Text
+
+  tontine       Tontine               @relation(fields: [tontineId], references: [id], onDelete: Cascade)
+  contributions TontineContribution[]
+  rotations     TontineRotation[]
+
+  @@index([tontineId])
+  @@map("tontine_members")
+}
+
+model TontineContribution {
+  id          String   @id @default(uuid())
+  tontineId   String   @map("tontine_id")
+  memberId    String   @map("member_id")
+  amount      Decimal  @db.Decimal(15, 2)
+  round       Int      // Numéro du tour
+  paidAt      DateTime @default(now()) @map("paid_at")
+  paymentMethod String? @map("payment_method") // CASH, MOBILE_MONEY, BANK_TRANSFER
+  notes       String?  @db.Text
+  isPaid      Boolean  @default(true) @map("is_paid")
+
+  tontine Tontine       @relation(fields: [tontineId], references: [id], onDelete: Cascade)
+  member  TontineMember @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@index([tontineId])
+  @@index([memberId])
+  @@index([tontineId, round])
+  @@map("tontine_contributions")
+}
+
+model TontineRotation {
+  id          String   @id @default(uuid())
+  tontineId   String   @map("tontine_id")
+  memberId    String   @map("member_id")
+  round       Int
+  totalAmount Decimal  @map("total_amount") @db.Decimal(15, 2)
+  receivedAt  DateTime @default(now()) @map("received_at")
+  notes       String?  @db.Text
+
+  tontine Tontine       @relation(fields: [tontineId], references: [id], onDelete: Cascade)
+  member  TontineMember @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@unique([tontineId, round])
+  @@index([tontineId])
+  @@index([memberId])
+  @@map("tontine_rotations")
+}
+
+// ==================== CHATBOT MODULE ====================
+
+model Conversation {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  title     String   @default("Nouvelle conversation")
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user     User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages ChatMessage[]
+
+  @@index([userId])
+  @@index([userId, isActive])
+  @@index([createdAt])
+  @@map("conversations")
+}
+
+model ChatMessage {
+  id             String   @id @default(uuid())
+  conversationId String   @map("conversation_id")
+  role           String   // USER, ASSISTANT, SYSTEM
+  content        String   @db.Text
+  metadata       Json?    @db.JsonB // { intent, entities, action, confidence }
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId])
+  @@index([conversationId, createdAt])
+  @@map("chat_messages")
+}
+
+// ==================== SMART ALERTS MODULE ====================
+
+model SmartAlert {
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
+  type       String   // BUDGET_WARNING, BUDGET_EXCEEDED, UNUSUAL_SPENDING, etc.
+  severity   String   // info, warning, critical
+  title      String
+  message    String   @db.Text
+  actionUrl  String?  @map("action_url")
+  actionLabel String? @map("action_label")
+  metadata   Json?    @db.JsonB
+  isRead     Boolean  @default(false) @map("is_read")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([userId, isRead])
+  @@index([userId, createdAt])
+  @@map("smart_alerts")
+}
+
+// ==================== BILL SPLITTING MODULE ====================
+
+model BillSplit {
+  id          String   @id @default(uuid())
+  userId      String   @map("user_id")
+  title       String
+  description String?  @db.Text
+  totalAmount Float    @map("total_amount")
+  currency    String   @default("XOF")
+  status      String   @default("PENDING") // PENDING, PARTIAL, COMPLETED, CANCELLED
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  user         User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  participants BillParticipant[]
+  payments     BillPayment[]
+
+  @@index([userId])
+  @@index([userId, status])
+  @@index([createdAt])
+  @@map("bill_splits")
+}
+
+model BillParticipant {
+  id          String    @id @default(uuid())
+  billSplitId String    @map("bill_split_id")
+  name        String
+  email       String?
+  phone       String?
+  shareAmount Float     @map("share_amount")
+  isPaid      Boolean   @default(false) @map("is_paid")
+  paidAt      DateTime? @map("paid_at")
+
+  billSplit BillSplit     @relation(fields: [billSplitId], references: [id], onDelete: Cascade)
+  payments  BillPayment[]
+
+  @@index([billSplitId])
+  @@map("bill_participants")
+}
+
+model BillPayment {
+  id            String   @id @default(uuid())
+  billSplitId   String   @map("bill_split_id")
+  participantId String   @map("participant_id")
+  amount        Float
+  paymentMethod String?  @map("payment_method")
+  transactionId String?  @map("transaction_id")
+  paidAt        DateTime @default(now()) @map("paid_at")
+  notes         String?  @db.Text
+
+  billSplit   BillSplit       @relation(fields: [billSplitId], references: [id], onDelete: Cascade)
+  participant BillParticipant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+
+  @@index([billSplitId])
+  @@index([participantId])
+  @@map("bill_payments")
+}

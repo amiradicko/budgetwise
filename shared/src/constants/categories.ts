@@ -1,0 +1,30 @@
+export const DEFAULT_CATEGORIES = [
+  // Dépenses
+  { name: 'Alimentation', icon: '🍕', color: '#10b981', type: 'EXPENSE' as const },
+  { name: 'Transport', icon: '🚗', color: '#3b82f6', type: 'EXPENSE' as const },
+  { name: 'Logement', icon: '🏠', color: '#8b5cf6', type: 'EXPENSE' as const },
+  { name: 'Santé', icon: '⚕️', color: '#ef4444', type: 'EXPENSE' as const },
+  { name: 'Shopping', icon: '🛍️', color: '#ec4899', type: 'EXPENSE' as const },
+  { name: 'Loisirs', icon: '🎮', color: '#f59e0b', type: 'EXPENSE' as const },
+  { name: 'Éducation', icon: '📚', color: '#06b6d4', type: 'EXPENSE' as const },
+  { name: 'Beauté', icon: '💄', color: '#f472b6', type: 'EXPENSE' as const },
+  { name: 'Voyage', icon: '✈️', color: '#14b8a6', type: 'EXPENSE' as const },
+  { name: 'Électricité', icon: '⚡', color: '#eab308', type: 'EXPENSE' as const },
+  { name: 'Eau', icon: '💧', color: '#0ea5e9', type: 'EXPENSE' as const },
+  { name: 'Internet', icon: '🌐', color: '#6366f1', type: 'EXPENSE' as const },
+  { name: 'Téléphone', icon: '📱', color: '#a855f7', type: 'EXPENSE' as const },
+  { name: 'Assurance', icon: '🛡️', color: '#64748b', type: 'EXPENSE' as const },
+  { name: 'Restaurant', icon: '🍽️', color: '#fb923c', type: 'EXPENSE' as const },
+  { name: 'Cadeau', icon: '🎁', color: '#f43f5e', type: 'EXPENSE' as const },
+  { name: 'Autres', icon: '💡', color: '#94a3b8', type: 'EXPENSE' as const },
+
+  // Revenus
+  { name: 'Salaire', icon: '💰', color: '#22c55e', type: 'INCOME' as const },
+  { name: 'Freelance', icon: '💼', color: '#10b981', type: 'INCOME' as const },
+  { name: 'Investissement', icon: '📈', color: '#14b8a6', type: 'INCOME' as const },
+  { name: 'Business', icon: '🏢', color: '#059669', type: 'INCOME' as const },
+  { name: 'Vente', icon: '🏷️', color: '#84cc16', type: 'INCOME' as const },
+  { name: 'Bonus', icon: '🎉', color: '#65a30d', type: 'INCOME' as const },
+  { name: 'Remboursement', icon: '↩️', color: '#4ade80', type: 'INCOME' as const },
+  { name: 'Autres revenus', icon: '💵', color: '#86efac', type: 'INCOME' as const },
+] as const;
