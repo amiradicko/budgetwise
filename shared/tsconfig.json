@@ -6,7 +6,10 @@
     "composite": true,
     "declaration": true,
     "declarationMap": true,
-    "moduleResolution": "bundler",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "target": "ES2022",
+    "esModuleInterop": true,
     "ignoreDeprecations": "5.0"
   },
   "include": ["src/**/*"],
