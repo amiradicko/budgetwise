@@ -424,21 +424,21 @@ export class ChatbotService {
 
           let response = `📊 Voici vos dépenses${categoryText} ${periodText} :\n\n`;
           response += `💸 Total dépenses : ${Math.round(summary.totalExpenses)} XOF\n`;
-          ifconst categoryName = t.category?.name || '';
-            response += `${i + 1}. ${icon} ${Math.round(Number(t.amount))} XOF - ${t.description}${categoryName ? ` (${categoryN
+          if (summary.totalIncome > 0) {
             response += `💰 Total revenus : ${Math.round(summary.totalIncome)} XOF\n`;
           }
           response += `\n📝 Dernières transactions :\n`;
           
           summary.transactions.slice(0, 5).forEach((t, i) => {
             const icon = t.type === 'EXPENSE' ? '💸' : '💰';
-            response += `${i + 1}. ${icon} ${Math.round(t.amount)} XOF - ${t.description}${t.category ? ` (${t.category.name})` : ''}\n`;
+            const categoryName = t.category?.name || '';
+            response += `${i + 1}. ${icon} ${Math.round(Number(t.amount))} XOF - ${t.description}${categoryName ? ` (${categoryName})` : ''}\n`;
           });
 
           return response;
         }
 
-        case 'VIEW_BALANCE': {Number(account.balance)
+        case 'VIEW_BALANCE': {
           const balance = await this.getBalance(userId);
           
           let response = `💰 Voici votre situation financière :\n\n`;
@@ -446,7 +446,7 @@ export class ChatbotService {
           response += `Détail par compte :\n`;
           
           balance.accounts.forEach((account, i) => {
-            response += `${i + 1}. ${account.name} : ${Math.round(account.balance)} XOF\n`;
+            response += `${i + 1}. ${account.name} : ${Math.round(Number(account.balance))} XOF\n`;
           });
 
           return response;
