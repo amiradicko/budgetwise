@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import smartAlertsService from './smartAlerts.service';
 import type { AuthRequest } from '../../middlewares/auth';
 
@@ -45,6 +45,10 @@ export class SmartAlertsController {
     try {
       const { id } = req.params;
       const userId = req.user!.userId;
+
+      if (!id) {
+        return res.status(400).json({ error: 'ID requis' });
+      }
 
       const alert = await smartAlertsService.markAsRead(id, userId);
 

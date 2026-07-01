@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import chatbotService from './chatbot.service';
 import type { AuthRequest } from '../../middlewares/auth';
 
@@ -30,6 +30,10 @@ export class ChatbotController {
   async getConversation(req: AuthRequest, res: Response) {
     try {
       const { id } = req.params;
+
+      if (!id) {
+        return res.status(400).json({ error: 'ID requis' });
+      }
 
       const conversation = await chatbotService.getConversationHistory(id);
 
@@ -75,6 +79,10 @@ export class ChatbotController {
     try {
       const { id } = req.params;
       const userId = req.user!.userId;
+
+      if (!id) {
+        return res.status(400).json({ error: 'ID requis' });
+      }
 
       await chatbotService.deleteConversation(id, userId);
 

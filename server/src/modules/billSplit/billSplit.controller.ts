@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import billSplitService from './billSplit.service';
 import type { AuthRequest } from '../../middlewares/auth';
 
@@ -46,6 +46,10 @@ export class BillSplitController {
     try {
       const { id } = req.params;
 
+      if (!id) {
+        return res.status(400).json({ error: 'ID requis' });
+      }
+
       const billSplit = await billSplitService.getBillSplit(id);
 
       // Vérifier que l'utilisateur est le propriétaire
@@ -69,6 +73,10 @@ export class BillSplitController {
       const userId = req.user!.userId;
       const data = req.body;
 
+      if (!id) {
+        return res.status(400).json({ error: 'ID requis' });
+      }
+
       const billSplit = await billSplitService.updateBillSplit(id, userId, data);
 
       res.json(billSplit);
@@ -87,6 +95,10 @@ export class BillSplitController {
       const userId = req.user!.userId;
       const data = req.body;
 
+      if (!id) {
+        return res.status(400).json({ error: 'ID requis' });
+      }
+
       const payment = await billSplitService.recordPayment(id, userId, data);
 
       res.status(201).json(payment);
@@ -103,6 +115,10 @@ export class BillSplitController {
     try {
       const { id } = req.params;
       const userId = req.user!.userId;
+
+      if (!id) {
+        return res.status(400).json({ error: 'ID requis' });
+      }
 
       await billSplitService.deleteBillSplit(id, userId);
 
@@ -140,6 +156,10 @@ export class BillSplitController {
   async getStats(req: AuthRequest, res: Response) {
     try {
       const { id } = req.params;
+
+      if (!id) {
+        return res.status(400).json({ error: 'ID requis' });
+      }
 
       const stats = await billSplitService.getBillSplitStats(id);
 

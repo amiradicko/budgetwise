@@ -194,7 +194,7 @@ export class ChatbotService {
 
     // Obtenir le compte principal de l'utilisateur
     const account = await prisma.account.findFirst({
-      where: { userId, isPrimary: true },
+      where: { userId },
     });
 
     if (!account) {
@@ -214,7 +214,6 @@ export class ChatbotService {
         amount,
         description,
         date: date ? new Date(date) : new Date(),
-        status: 'COMPLETED',
       },
       include: {
         category: true,
@@ -300,11 +299,11 @@ export class ChatbotService {
 
     const totalExpenses = transactions
       .filter(t => t.type === 'EXPENSE')
-      .reduce((sum, t) => sum + t.amount, 0);
+      .reduce((sum, t) => sum + Number(t.amount), 0);
 
     const totalIncome = transactions
       .filter(t => t.type === 'INCOME')
-      .reduce((sum, t) => sum + t.amount, 0);
+      .reduce((sum, t) => sum + Number(t.amount), 0);
 
     return {
       transactions,
@@ -324,7 +323,7 @@ export class ChatbotService {
       where: { userId },
     });
 
-    const totalBalance = accounts.reduce((sum, account) => sum + account.balance, 0);
+    const totalBalance = accounts.reduce((sum, account) => sum + Number(account.balance), 0);
 
     return {
       totalBalance,
@@ -353,32 +352,39 @@ export class ChatbotService {
       },
       include: {
         category: true,
-        transactions: {
-          where: {
-            date: {
-              gte: startDate,
-              lte: endDate,
-            },
-          },
-        },
       },
     });
 
-    return budgets.map(budget => {
-      const spent = budget.transactions.reduce((sum, t) => sum + t.amount, 0);
-      const remaining = budget.amount - spent;
-      const percentage = (spent / budget.amount) * 100;
+    // Get transactions separately for each budget
+    const budgetsWithStats = await Promise.all(budgets.map(async (budget) => {
+      const transactions = await prisma.transaction.findMany({
+        where: {
+          userId,
+          categoryId: budget.categoryId || undefined,
+          date: {
+            gte: startDate,
+            lte: endDate,
+          },
+        },
+      });
+
+      const spent = transactions.reduce((sum, t) => sum + Number(t.amount), 0);
+      const budgetAmount = Number(budget.amount);
+      const remaining = budgetAmount - spent;
+      const percentage = (spent / budgetAmount) * 100;
 
       return {
         id: budget.id,
         category: budget.category?.name || 'Non catégorisé',
-        amount: budget.amount,
+        amount: budgetAmount,
         spent,
         remaining,
         percentage,
         status: percentage >= 100 ? 'exceeded' : percentage >= 80 ? 'warning' : 'good',
       };
-    });
+    }));
+
+    return budgetsWithStats;
   }
 
   /**
@@ -418,7 +424,8 @@ export class ChatbotService {
 
           let response = `📊 Voici vos dépenses${categoryText} ${periodText} :\n\n`;
           response += `💸 Total dépenses : ${Math.round(summary.totalExpenses)} XOF\n`;
-          if (summary.totalIncome > 0) {
+          ifconst categoryName = t.category?.name || '';
+            response += `${i + 1}. ${icon} ${Math.round(Number(t.amount))} XOF - ${t.description}${categoryName ? ` (${categoryN
             response += `💰 Total revenus : ${Math.round(summary.totalIncome)} XOF\n`;
           }
           response += `\n📝 Dernières transactions :\n`;
@@ -431,7 +438,7 @@ export class ChatbotService {
           return response;
         }
 
-        case 'VIEW_BALANCE': {
+        case 'VIEW_BALANCE': {Number(account.balance)
           const balance = await this.getBalance(userId);
           
           let response = `💰 Voici votre situation financière :\n\n`;
