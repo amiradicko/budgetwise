@@ -1,6 +1,11 @@
 import prisma from '../../config/database';
-import type { Intent } from '@budgetwise/shared';
 import { startOfMonth, endOfMonth, startOfWeek, endOfWeek, startOfDay, endOfDay, startOfYear, endOfYear } from 'date-fns';
+
+export interface Intent {
+  type: string;
+  confidence: number;
+  entities: Record<string, any>;
+}
 
 export class ChatbotService {
   /**
@@ -18,7 +23,7 @@ export class ChatbotService {
 
     for (const pattern of addTransactionPatterns) {
       const match = lowerMessage.match(pattern);
-      if (match) {
+      if (match && match[1]) {
         const amount = parseInt(match[1]);
         const description = match[2]?.trim();
         
@@ -43,7 +48,7 @@ export class ChatbotService {
 
     for (const pattern of incomePatterns) {
       const match = lowerMessage.match(pattern);
-      if (match) {
+      if (match && match[1]) {
         return {
           type: 'ADD_TRANSACTION',
           confidence: 0.85,
@@ -214,6 +219,7 @@ export class ChatbotService {
         amount,
         description,
         date: date ? new Date(date) : new Date(),
+        currency: 'XOF',
       },
       include: {
         category: true,
@@ -396,12 +402,12 @@ export class ChatbotService {
         case 'ADD_TRANSACTION': {
           const transaction = await this.createTransactionFromMessage(userId, intent);
           const { amount, type } = intent.entities;
-          const category = transaction.category?.name || 'Non catégorisé';
+          const categoryName = 'Non catégorisé'; // Category name is not included in response
           
           if (type === 'INCOME') {
             return `✅ Super ! J'ai enregistré votre revenu de ${amount} XOF pour "${transaction.description}".\n\nVotre compte a été crédité.`;
           } else {
-            return `✅ Transaction enregistrée !\n\n💰 Montant : ${amount} XOF\n📁 Catégorie : ${category}\n📝 Description : ${transaction.description}\n\nVotre solde a été mis à jour.`;
+            return `✅ Transaction enregistrée !\n\n💰 Montant : ${amount} XOF\n📁 Catégorie : ${categoryName}\n📝 Description : ${transaction.description}\n\nVotre solde a été mis à jour.`;
           }
         }
 
@@ -409,12 +415,13 @@ export class ChatbotService {
           const { period = 'month', category } = intent.entities;
           const summary = await this.getTransactionsSummary(userId, period, category);
           
-          const periodText = {
+          const periodText: Record<string, string> = {
             day: "aujourd'hui",
             week: 'cette semaine',
             month: 'ce mois',
             year: 'cette année',
-          }[period];
+          };
+          const periodLabel = periodText[period] || 'cette période';
 
           const categoryText = category ? ` en ${category}` : '';
           
@@ -422,7 +429,7 @@ export class ChatbotService {
             return `Vous n'avez aucune dépense${categoryText} ${periodText}. 🎉`;
           }
 
-          let response = `📊 Voici vos dépenses${categoryText} ${periodText} :\n\n`;
+          let response = `📊 Voici vos dépenses${categoryText} ${periodLabel} :\n\n`;
           response += `💸 Total dépenses : ${Math.round(summary.totalExpenses)} XOF\n`;
           if (summary.totalIncome > 0) {
             response += `💰 Total revenus : ${Math.round(summary.totalIncome)} XOF\n`;
@@ -590,7 +597,7 @@ export class ChatbotService {
   /**
    * Obtenir l'historique d'une conversation
    */
-  async getConversationHistory(conversationId: string) {
+  async getConversationHistory(conversationId?: string) {
     const conversation = await prisma.conversation.findUnique({
       where: { id: conversationId },
       include: {

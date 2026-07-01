@@ -13,10 +13,10 @@ export class BillSplitController {
 
       const billSplit = await billSplitService.createBillSplit(userId, data);
 
-      res.status(201).json(billSplit);
+      return res.status(201).json(billSplit);
     } catch (error: any) {
       console.error('Error in createBillSplit:', error);
-      res.status(400).json({ error: error.message });
+      return res.status(400).json({ error: error.message });
     }
   }
 
@@ -29,13 +29,13 @@ export class BillSplitController {
 
       const billSplits = await billSplitService.getUserBillSplits(userId);
 
-      res.json({
+      return res.json({
         billSplits,
         total: billSplits.length,
       });
     } catch (error: any) {
       console.error('Error in getBillSplits:', error);
-      res.status(500).json({ error: error.message });
+      return res.status(500).json({ error: error.message });
     }
   }
 
@@ -57,10 +57,10 @@ export class BillSplitController {
         return res.status(403).json({ error: 'Accès non autorisé' });
       }
 
-      res.json(billSplit);
+      return res.json(billSplit);
     } catch (error: any) {
       console.error('Error in getBillSplit:', error);
-      res.status(500).json({ error: error.message });
+      return res.status(500).json({ error: error.message });
     }
   }
 
@@ -79,10 +79,10 @@ export class BillSplitController {
 
       const billSplit = await billSplitService.updateBillSplit(id, userId, data);
 
-      res.json(billSplit);
+      return res.json(billSplit);
     } catch (error: any) {
       console.error('Error in updateBillSplit:', error);
-      res.status(500).json({ error: error.message });
+      return res.status(500).json({ error: error.message });
     }
   }
 
@@ -101,10 +101,10 @@ export class BillSplitController {
 
       const payment = await billSplitService.recordPayment(id, userId, data);
 
-      res.status(201).json(payment);
+      return res.status(201).json(payment);
     } catch (error: any) {
       console.error('Error in recordPayment:', error);
-      res.status(400).json({ error: error.message });
+      return res.status(400).json({ error: error.message });
     }
   }
 
@@ -122,10 +122,10 @@ export class BillSplitController {
 
       await billSplitService.deleteBillSplit(id, userId);
 
-      res.json({ message: 'Partage de facture supprimé' });
+      return res.json({ message: 'Partage de facture supprimé' });
     } catch (error: any) {
       console.error('Error in deleteBillSplit:', error);
-      res.status(500).json({ error: error.message });
+      return res.status(500).json({ error: error.message });
     }
   }
 
@@ -143,10 +143,10 @@ export class BillSplitController {
 
       const billSplit = await billSplitService.splitEqually(userId, title, totalAmount, participants);
 
-      res.status(201).json(billSplit);
+      return res.status(201).json(billSplit);
     } catch (error: any) {
       console.error('Error in splitEqually:', error);
-      res.status(400).json({ error: error.message });
+      return res.status(400).json({ error: error.message });
     }
   }
 
@@ -163,10 +163,10 @@ export class BillSplitController {
 
       const stats = await billSplitService.getBillSplitStats(id);
 
-      res.json(stats);
+      return res.json(stats);
     } catch (error: any) {
       console.error('Error in getStats:', error);
-      res.status(500).json({ error: error.message });
+      return res.status(500).json({ error: error.message });
     }
   }
 }

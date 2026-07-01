@@ -1,5 +1,28 @@
 import prisma from '../../config/database';
-import type { CreateBillSplitRequest, UpdateBillSplitRequest, RecordPaymentRequest } from '@budgetwise/shared';
+
+export interface CreateBillSplitRequest {
+  title: string;
+  totalAmount: number;
+  description?: string;
+  participants: Array<{
+    name: string;
+    email?: string;
+    shareAmount: number;
+  }>;
+}
+
+export interface UpdateBillSplitRequest {
+  title?: string;
+  status?: string;
+  notes?: string;
+}
+
+export interface RecordPaymentRequest {
+  participantId: string;
+  amount: number;
+  paymentMethod: string;
+  notes?: string;
+}
 
 export class BillSplitService {
   /**
@@ -9,7 +32,7 @@ export class BillSplitService {
     const { title, description, totalAmount, participants } = data;
 
     // Vérifier que le total des parts correspond au montant total
-    const totalShares = participants.reduce((sum, p) => sum + p.shareAmount, 0);
+    const totalShares = participants.reduce((sum: number, p: any) => sum + p.shareAmount, 0);
     
     if (Math.abs(totalShares - totalAmount) > 0.01) {
       throw new Error(`Le total des parts (${totalShares}) ne correspond pas au montant total (${totalAmount})`);
@@ -99,7 +122,7 @@ export class BillSplitService {
   /**
    * Enregistrer un paiement
    */
-  async recordPayment(billSplitId: string, userId: string, data: RecordPaymentRequest) {
+  async recordPayment(billSplitId: string, _userId: string, data: RecordPaymentRequest) {
     const { participantId, amount, paymentMethod, notes } = data;
 
     // Vérifier que le participant existe et appartient au bill split

@@ -37,7 +37,7 @@ interface Config {
     maxRequests: number;
   };
   cors: {
-    origin: string;
+    origin: string | string[];
   };
   logging: {
     level: string;
@@ -84,7 +84,7 @@ const config: Config = {
   },
 
   cors: {
-    origin: (process.env.CORS_ORIGIN || 'http://localhost:5173,http://localhost:5174,http://localhost:5175').split(','),
+    origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175'],
   },
 
   logging: {

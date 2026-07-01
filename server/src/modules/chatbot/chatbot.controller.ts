@@ -17,10 +17,10 @@ export class ChatbotController {
 
       const result = await chatbotService.processMessage(userId, message, conversationId);
 
-      res.json(result);
+      return res.json(result);
     } catch (error: any) {
       console.error('Error in sendMessage:', error);
-      res.status(500).json({ error: error.message });
+      return res.status(500).json({ error: error.message });
     }
   }
 
@@ -46,10 +46,10 @@ export class ChatbotController {
         return res.status(403).json({ error: 'Accès non autorisé' });
       }
 
-      res.json(conversation);
+      return res.json(conversation);
     } catch (error: any) {
       console.error('Error in getConversation:', error);
-      res.status(500).json({ error: error.message });
+      return res.status(500).json({ error: error.message });
     }
   }
 
@@ -62,13 +62,13 @@ export class ChatbotController {
 
       const conversations = await chatbotService.getUserConversations(userId);
 
-      res.json({
+      return res.json({
         conversations,
         total: conversations.length,
       });
     } catch (error: any) {
       console.error('Error in getConversations:', error);
-      res.status(500).json({ error: error.message });
+      return res.status(500).json({ error: error.message });
     }
   }
 
@@ -86,10 +86,10 @@ export class ChatbotController {
 
       await chatbotService.deleteConversation(id, userId);
 
-      res.json({ message: 'Conversation supprimée' });
+      return res.json({ message: 'Conversation supprimée' });
     } catch (error: any) {
       console.error('Error in deleteConversation:', error);
-      res.status(500).json({ error: error.message });
+      return res.status(500).json({ error: error.message });
     }
   }
 }

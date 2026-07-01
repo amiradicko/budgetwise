@@ -52,10 +52,10 @@ export class SmartAlertsController {
 
       const alert = await smartAlertsService.markAsRead(id, userId);
 
-      res.json(alert);
+      return res.json(alert);
     } catch (error: any) {
       console.error('Error in markAsRead:', error);
-      res.status(500).json({ error: error.message });
+      return res.status(500).json({ error: error.message });
     }
   }
 
@@ -68,10 +68,10 @@ export class SmartAlertsController {
 
       await smartAlertsService.markAllAsRead(userId);
 
-      res.json({ message: 'Toutes les alertes ont été marquées comme lues' });
+      return res.json({ message: 'Toutes les alertes ont été marquées comme lues' });
     } catch (error: any) {
       console.error('Error in markAllAsRead:', error);
-      res.status(500).json({ error: error.message });
+      return res.status(500).json({ error: error.message });
     }
   }
 
@@ -89,10 +89,10 @@ export class SmartAlertsController {
 
       await smartAlertsService.deleteAlert(id, userId);
 
-      res.json({ message: 'Alerte supprimée' });
+      return res.json({ message: 'Alerte supprimée' });
     } catch (error: any) {
       console.error('Error in deleteAlert:', error);
-      res.status(500).json({ error: error.message });
+      return res.status(500).json({ error: error.message });
     }
   }
 }

@@ -1,6 +1,15 @@
 import prisma from '../../config/database';
-import type { CreateAlertRequest } from '@budgetwise/shared';
 import { startOfMonth, endOfMonth } from 'date-fns';
+
+export interface CreateAlertRequest {
+  type: string;
+  severity: 'info' | 'warning' | 'critical';
+  title: string;
+  message: string;
+  actionUrl?: string;
+  actionLabel?: string;
+  metadata?: Record<string, any>;
+}
 
 export class SmartAlertsService {
   /**
