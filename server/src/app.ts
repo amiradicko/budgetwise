@@ -51,11 +51,15 @@ class App {
           }
           
           // In production, check against whitelist
-          if (origin === config.cors.origin) {
+          const allowedOrigins = Array.isArray(config.cors.origin)
+            ? config.cors.origin
+            : [config.cors.origin];
+          
+          if (allowedOrigins.includes(origin)) {
             return callback(null, true);
           }
           
-          callback(new Error('Not allowed by CORS'));
+          callback(new Error(`Origin ${origin} not allowed by CORS`));
         },
         credentials: true,
       })
