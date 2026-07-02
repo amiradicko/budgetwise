@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import insightsService from '../services/insights.service';
 import type { InsightData, Prediction, Anomaly, Recommendation, CategoryTrend, SpendingPattern } from '@budgetwise/shared';
-import { Card } from '../components/ui/Card';
 import {
   TrendingUp,
   AlertTriangle,
@@ -427,7 +426,7 @@ const InsightsPage = () => {
           </div>
           <div className="rounded-xl bg-white shadow-lg border border-gray-100 overflow-hidden">
             <div className="p-6 space-y-5">
-              {insights.trends.slice(0, 8).map((trend: CategoryTrend, index: number) => (
+              {insights.trends.slice(0, 8).map((trend: CategoryTrend) => (
                 <div
                   key={trend.categoryId}
                   className="group p-4 rounded-xl hover:bg-gradient-to-r hover:from-gray-50 hover:to-transparent transition-all duration-300"

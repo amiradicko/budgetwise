@@ -11,8 +11,8 @@ import Select from '../components/ui/Select';
 import Layout from '../components/Layout';
 import { Plus, ArrowUpCircle, ArrowDownCircle, TrendingUp, TrendingDown, Download } from 'lucide-react';
 import { formatCurrency, formatDate } from '../lib/utils';
-import { TransactionType } from '@budgetwise/shared';
-import type { Transaction, CreateTransactionInput } from '../types';
+import { TransactionType, type Transaction } from '@budgetwise/shared';
+import type { CreateTransactionInput } from '../types';
 import { useExportPDF } from '../hooks/useExportPDF';
 import { format } from 'date-fns';
 
