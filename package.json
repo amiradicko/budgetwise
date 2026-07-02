@@ -26,7 +26,7 @@
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down",
     "docker:rebuild": "docker-compose up -d --build",
-    "prepare": "husky install || true",
+    "prepare": "node -e \"if (process.env.CI !== 'true') { const { execSync } = require('child_process'); try { execSync('husky install', { stdio: 'inherit' }); } catch (e) { console.log('Husky install skipped'); } }\"",
     "test": "npm run test --workspaces"
   },
   "devDependencies": {
