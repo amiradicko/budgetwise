@@ -1,5 +1,6 @@
 {
   "installCommand": "npm install",
   "buildCommand": "bash build-client.sh",
-  "outputDirectory": "client/dist"
+  "outputDirectory": "client/dist",
+  "framework": null
 }
