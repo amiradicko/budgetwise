@@ -1,21 +1,19 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { format } from 'date-fns';
+import type { Transaction } from '@budgetwise/shared';
+import { TransactionType } from '@budgetwise/shared';
 
-interface Transaction {
-  id: string;
-  date: string | Date;
-  description: string;
-  amount: number;
-  type: 'INCOME' | 'EXPENSE';
+// Type étendu pour inclure les données enrichies (category et account)
+type TransactionWithDetails = Transaction & {
   category?: { name: string };
   account?: { name: string };
-}
+};
 
 interface ExportPDFOptions {
   title: string;
   subtitle?: string;
-  transactions: Transaction[];
+  transactions: TransactionWithDetails[];
   summary?: {
     totalIncome: number;
     totalExpense: number;
@@ -57,7 +55,7 @@ export function useExportPDF() {
       t.description,
       t.category?.name || '-',
       t.account?.name || '-',
-      t.type === 'INCOME' ? `+${t.amount.toLocaleString('fr-FR')}` : `-${t.amount.toLocaleString('fr-FR')}`,
+      t.type === TransactionType.INCOME ? `+${t.amount.toLocaleString('fr-FR')}` : `-${t.amount.toLocaleString('fr-FR')}`,
     ]);
 
     autoTable(doc, {
