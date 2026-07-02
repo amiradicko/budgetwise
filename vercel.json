@@ -1,6 +1,13 @@
 {
-  "installCommand": "npm install",
-  "buildCommand": "bash build-client.sh",
+  "version": 2,
+  "buildCommand": "npm run build --workspace=shared && npm run build --workspace=client",
   "outputDirectory": "client/dist",
-  "framework": null
+  "installCommand": "npm install",
+  "framework": null,
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
 }
