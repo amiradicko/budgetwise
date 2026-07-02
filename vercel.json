@@ -1,5 +1,5 @@
 {
-  "buildCommand": "npm run build:shared && npm run build:client",
   "installCommand": "npm install",
+  "buildCommand": "bash build-client.sh",
   "outputDirectory": "client/dist"
 }
