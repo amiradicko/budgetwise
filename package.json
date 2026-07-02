@@ -26,7 +26,7 @@
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down",
     "docker:rebuild": "docker-compose up -d --build",
-    "postinstall": "test -n \"$CI\" || husky install || true",
+    "postinstall": "node -e \"process.env.CI || require('child_process').exec('npx husky install', () => {})\"",
     "test": "npm run test --workspaces"
   },
   "devDependencies": {
